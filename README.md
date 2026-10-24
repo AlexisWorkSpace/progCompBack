@@ -1,42 +1,52 @@
 # progCompBack
 
-API Express y juez de Tecla-Ton. Incluye casos de prueba en `exercises.js`, validación especial para el problema C, autenticación, ranking y perfiles de ejecución aislados en Docker. Los enunciados están en `ejercicios.txt`.
+Backend de Tecla-Ton. La API para autenticación, perfiles y ranking se despliega como **Supabase Edge Function**; los datos viven en Supabase Auth y PostgreSQL. La API Express y los contenedores Docker se conservan para desarrollo local y para integrar el ejecutor más adelante.
 
-## Requisitos y ejecución local
+## Despliegue en Supabase
 
-- Node.js 18 o posterior.
-- Docker Engine y Docker CLI disponibles para el proceso del backend.
+1. Crea un proyecto en [Supabase](https://database.new/) y guarda el **Project Reference** y la contraseña de la base de datos.
+2. En **Project Settings → API Keys**, copia la **Project URL**, la **Publishable key** (`sb_publishable_…`) y la **Secret key** (`sb_secret_…`). La clave secreta jamás va en Vercel ni en el navegador.
+3. Instala Supabase CLI, inicia sesión y vincula el proyecto desde la raíz del repositorio backend:
 
-Instala dependencias con `npm ci`, configura `CORS_ORIGIN=http://localhost:5173` si necesitas CORS en desarrollo, y ejecuta `npm start`. Comprueba `/health`. `npm test` ejecuta las pruebas unitarias del juez y las reglas de puntuación.
+	```powershell
+	npx supabase login
+	npx supabase link --project-ref TU_PROJECT_REF
+	```
 
-## Variables de entorno
+4. Aplica la migración SQL incluida. `db push` puede solicitar la contraseña de base de datos que guardaste al crear el proyecto:
 
-- `PORT`: puerto HTTP; la plataforma debe proporcionar este valor.
-- `CORS_ORIGIN`: lista separada por comas de los orígenes permitidos; requiere coincidencia exacta, por ejemplo `https://prog-comp-front.vercel.app`.
-- `USER_DATA_DIR`: directorio persistente para `users.json` y `auth-secret`. En Railway monta un volumen persistente en `/app/data` y define `USER_DATA_DIR=/app/data`.
-- `ALLOW_REGISTRATION=false`: deshabilita nuevas cuentas tras registrar a los participantes.
-- `MAX_CONCURRENT_RUNS`: límite de ejecuciones simultáneas; por defecto `4`.
+	```powershell
+	npx supabase db push
+	```
 
-## Preparar despliegue en Railway
+	Crea `profiles`, `exercise_scores`, el trigger de perfil y el RPC transaccional de puntuación. RLS queda activado y el RPC solo se concede al rol `service_role`.
+5. En **Edge Functions → Secrets** configura `APP_PUBLISHABLE_KEY`, `APP_SECRET_KEY` y `FRONTEND_ORIGIN`. Usa la Publishable key y la Secret key copiadas desde Settings → API Keys; para el origen escribe el URL exacto de Vercel, sin barra final. Supabase proporciona `SUPABASE_URL` al runtime. No pegues las claves reales en GitHub ni en el frontend.
+6. Despliega la función:
 
-1. Crea un proyecto Railway e importa `AlexisWorkSpace/progCompBack` desde GitHub. Usa la raíz del repositorio como raíz del servicio; `railway.json` define el comando de inicio y `/health` como healthcheck.
-2. Añade las variables `CORS_ORIGIN`, `USER_DATA_DIR=/app/data`, `ALLOW_REGISTRATION=true` y `MAX_CONCURRENT_RUNS=2`. Para CORS, escribe el origen exacto que Vercel asignó al frontend, sin ruta ni barra final.
-3. Añade un **Volume** y móntalo en `/app/data`. Los usuarios, puntuaciones y clave que firma sesiones se guardan ahí; no despliegues o escales varias réplicas con el archivo JSON.
-4. Genera un dominio Railway y comprueba `https://<dominio>/health`.
-5. En Vercel define `VITE_API_URL=https://<dominio>` y vuelve a desplegar el frontend.
-6. Prueba registro, inicio de sesión, ranking y luego un envío. No compartas el dominio con participantes hasta resolver el requisito del ejecutor indicado a continuación.
+	```powershell
+	npx supabase functions deploy api --use-api
+	```
 
-No subas archivos `.env`, datos de usuarios, claves de firma, tokens, certificados ni contraseñas al repositorio. Conserva el mismo volumen de datos al reiniciar el servicio; perder `auth-secret` invalida las sesiones existentes.
+	`--use-api` evita depender de Docker en la máquina que hace el deploy de la función.
+7. En Vercel configura `VITE_SUPABASE_URL` con la Project URL y `VITE_SUPABASE_PUBLISHABLE_KEY` con la Publishable key. El cliente construye la URL `/functions/v1/api`. Vuelve a desplegar Vercel para que Vite incorpore estas variables.
+8. Prueba `https://TU_PROJECT_REF.supabase.co/functions/v1/api/health`, luego registro, salida y ranking. Después puedes restringir el registro desde la configuración de la app cuando estén creadas las cuentas.
 
-## Importante: Railway y el juez Docker
+## Cuenta y modelo de identidad
 
-Railway puede construir e iniciar esta API Node, pero el servicio necesita Docker CLI y un Docker daemon accesible para compilar y ejecutar los envíos. El despliegue Nixpacks por sí solo **no proporciona ese daemon**: `/health`, ejercicios, cuentas y ranking pueden responder, mientras que `/run` y `/submit` fallarán al no encontrar un Docker Engine. No expongas un daemon Docker sin TLS ni montes un socket Docker público. El frontend también exige sesión para ejecutar código.
+La interfaz permite usuario y contraseña. La función crea internamente una dirección técnica `usuario@users.teclaton.invalid`, confirma la cuenta desde el servidor y exige contraseña de al menos 8 caracteres. No se envía correo ni se publica esa dirección. No actives inicio de sesión anónimo. Si ya existen usuarios locales creados en la versión anterior, no se migran automáticamente: deberán registrarse de nuevo o habrá que preparar una importación controlada.
 
-Antes de anunciar el juez como operativo en producción, conecta el backend a un ejecutor aislado dedicado con autenticación y límites de recursos, o aloja el backend en infraestructura que proporcione un daemon Docker seguro. Una variable `DOCKER_HOST` por sí sola no crea ni protege ese daemon.
+## Estado del juez (todavía no conectado)
 
-## Protecciones incluidas y límites
+La función de Supabase sirve ejercicios, cuentas, sesión y ranking. **`/run` y `/submit` devuelven HTTP 503 deliberadamente**, sin consumir intentos ni alterar puntajes, hasta integrar el ejecutor de código. Supabase Edge Functions no ejecuta los contenedores Docker actuales. El SQL ya deja lista la operación atómica de puntuación para que el futuro juez la llame después de evaluar una solución. No anuncies envíos operativos hasta conectar y probar un sandbox.
 
-- Las rutas para ejecutar y enviar código requieren sesión; el registro, inicio de sesión, ejecución y envíos tienen límites de solicitudes en memoria por IP/usuario.
-- CORS usa una lista explícita; encabezados de seguridad, tamaño máximo del cuerpo, límites globales de concurrencia y límites por contenedor restringen el uso.
-- Las contraseñas se almacenan con scrypt; los tokens tienen firma HMAC y vencen a los siete días. Los resultados actuales viven en un archivo JSON local: usa volumen persistente y una sola instancia, o sustituye el almacenamiento por una base de datos compartida antes de escalar.
-- El limitador por IP está en memoria y no coordina varias instancias. CORS no es autenticación. Aun con el sandbox, la ejecución de código no confiable requiere una revisión de seguridad antes de abrir el servicio a Internet.
+## Seguridad y pruebas
+
+- El frontend solo recibe la Publishable key. El backend de la Edge Function usa la Secret key y valida cada JWT con Supabase Auth.
+- RLS está activado; el acceso administrativo se queda en la función. La función limita registro, login y envíos; CORS acepta solo `FRONTEND_ORIGIN` configurado.
+- Los tokens se guardan en `localStorage`; mantén la política de seguridad del frontend y HTTPS activados. No copies claves, JWT, archivos `.env` ni datos reales al repositorio.
+- La limitación de solicitudes de la función es en memoria y puede reiniciarse entre instancias. Para un evento con 40 participantes, prueba picos y añade un rate limiter/cola persistente al integrar el juez.
+- Ejecuta `npm test` en `backend` para verificar los 18 casos retenidos y las reglas de puntuación. Estos casos siguen presentes en el repositorio público; no deben considerarse secretos de evaluación.
+
+## Desarrollo local del backend Express
+
+Node.js 18+, `npm ci` y Docker Engine son necesarios para `npm start` y para el ejecutor Docker local. La función de Supabase se desarrolla/despliega por separado con la CLI. El despliegue Supabase no levanta el servidor Express.

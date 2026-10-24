@@ -1,0 +1,6 @@
+project_id = "tecla-ton"
+
+[functions.api]
+# The API validates Supabase Auth access tokens itself so public routes
+# (exercise metadata and ranking) can coexist with protected routes.
+verify_jwt = false
