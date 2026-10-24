@@ -1,0 +1,15 @@
+{
+  "name": "code-runner-backend",
+  "version": "1.0.0",
+  "description": "API para ejecutar código en contenedores aislados",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
