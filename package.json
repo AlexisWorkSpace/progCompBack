@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "description": "API para ejecutar código en contenedores aislados",
   "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
+    "worker": "node judgeWorker.js",
     "test": "node --test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "cors": "^2.8.5",
     "express": "^4.21.2"
   }

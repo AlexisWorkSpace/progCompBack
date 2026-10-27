@@ -6,31 +6,16 @@ tamaño sea lo suficientemente aproximado al tamaño deseado.
 ENTRADA
 La primera línea de entrada contiene tres números enteros n, m y k: el número de solicitantes, el número de
 apartamentos y la diferencia máxima permitida.
-La siguiente línea contiene n números enteros a1
-, a2
-, ..., an
-: el tamaño deseado por cada solicitante. Si el tamaño
-
-deseado es x, aceptarán cualquier apartamento cuyo tamaño esté entre x−k y x+k.
-La última línea contiene m números enteros b1
-, b2
-, ..., bm: el tamaño de cada apartamento.
-
+La siguiente línea contiene n números enteros a1, a2, ..., an: el tamaño deseado por cada solicitante.
+La última línea contiene m números enteros b1, b2, ..., bm: el tamaño de cada apartamento.
 SALIDA
 Imprime un número entero: la cantidad de solicitantes que obtendrán un apartamento.
 RESTRICCIONES
-1 ≤ n, m ≤ 2 · 10
-5
-0 ≤ k ≤ 10
-9
-1 ≤ ai
-, bi ≤ 10
-9
+1 ≤ n, m ≤ 2 · 10^5; 0 ≤ k ≤ 10^9; 1 ≤ ai, bi ≤ 10^9.
 ENTRADA DE EJEMPLO
 4 3 5
 60 45 80 60
 30 60 75
-
 SALIDA DE EJEMPLO
 2
 
@@ -38,296 +23,149 @@ Problema B — Combinaciones de Monedas II Límite: 1.0s / 512 MB
 Consideremos un sistema monetario que consta de n monedas. Cada moneda tiene un valor entero positivo. Tu
 tarea es calcular el número de formas ordenadas en las que puedes producir una suma de dinero x utilizando las
 monedas disponibles.
-Por ejemplo, si las monedas son {2, 3, 5} y la suma deseada es 9, hay 3 maneras:
-2 + 2 + 5
-3 + 3 + 3
-2 + 2 + 2 + 3
+Por ejemplo, si las monedas son {2, 3, 5} y la suma deseada es 9, hay 3 maneras: 2+2+5, 3+3+3 y 2+2+2+3.
 ENTRADA
-La primera línea de entrada contiene dos números enteros n y x: el número de monedas y la cantidad de dinero
-deseada.
-La segunda línea tiene n enteros distintos c1
-, c2
-, ..., cn
-: el valor de cada moneda.
-
+La primera línea contiene n y x. La segunda contiene n valores distintos de moneda.
 SALIDA
-Imprime un número entero: el número de maneras módulo 10
-9 + 7.
-
+El número de maneras módulo 10^9+7.
 RESTRICCIONES
-1 ≤ n ≤ 100
-1 ≤ x ≤ 10
-6
-1 ≤ ci ≤ 10
-6
+1 ≤ n ≤ 100; 1 ≤ x ≤ 10^6; 1 ≤ ci ≤ 10^6.
 ENTRADA DE EJEMPLO
 3 9
 2 3 5
-
 SALIDA DE EJEMPLO
 3
 
-Tecla-Ton — Primera Edición Página 1 de 6
-
 Problema C — Asignación de Habitaciones Límite: 1.0s / 512 MB
-Hay un gran hotel y pronto llegarán n clientes. Cada cliente desea una habitación individual.
-Usted conoce el día de llegada y de salida de cada cliente. Dos clientes pueden alojarse en la misma habitación si el
-día de salida del primer cliente es estrictamente anterior al día de llegada del segundo.
-¿Cuál es el número mínimo de habitaciones necesarias para alojar a todos los clientes? ¿Y cómo se pueden
-distribuir las habitaciones?
+Un hotel recibirá n clientes. Se conoce llegada y salida. Dos clientes pueden usar la misma habitación solo si la salida del primero es estrictamente anterior a la llegada del segundo. Calcula el número mínimo de habitaciones y una asignación válida.
 ENTRADA
-La primera línea de entrada contiene un número entero n: el número de clientes.
-Luego hay n líneas, cada una describiendo a un cliente con dos números enteros a y b: el día de llegada y de salida.
+Un entero n seguido de n pares a,b de llegada y salida.
 SALIDA
-Imprime primero un número entero k: el número mínimo de habitaciones requeridas.
-Después de eso, imprime una línea que contenga el número de habitación de cada cliente en el mismo orden que en
-la entrada. Las habitaciones están numeradas 1, 2, ..., k. Puedes imprimir cualquier solución válida.
+El mínimo k y una línea con el número de habitación de cada cliente en orden de entrada. Cualquier solución válida sirve.
 RESTRICCIONES
-1 ≤ n ≤ 2 · 10
-5
-1 ≤ a ≤ b ≤ 10
-9
+1 ≤ n ≤ 2 · 10^5; 1 ≤ a ≤ b ≤ 10^9.
 ENTRADA DE EJEMPLO
 3
 1 2
 2 4
 4 4
-
 SALIDA DE EJEMPLO
 2
 1 2 1
 
 Problema D — Algoritmo Extraño Límite: 1.0s / 512 MB
-Consideremos un algoritmo que toma como entrada un número entero positivo n. Si n es par, el algoritmo lo divide
-por dos, y si n es impar, lo multiplica por tres y le suma uno. El algoritmo repite esto hasta que n es uno. Por ejemplo,
-la secuencia para n = 3 es: 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1.
-Tu tarea consiste en simular la ejecución del algoritmo para un valor dado de n.
+Simula el algoritmo para un entero positivo n: si n es par lo divide por dos; si es impar lo multiplica por tres y suma uno; repite hasta uno.
 ENTRADA
-La única línea de entrada contiene un número entero n.
+Un entero n.
 SALIDA
-Imprime una línea que contenga todos los valores de n durante la ejecución del algoritmo.
+Todos los valores de la secuencia en una línea.
 RESTRICCIONES
-1 ≤ n ≤ 10
-6
+1 ≤ n ≤ 10^6.
 ENTRADA DE EJEMPLO
 3
-
 SALIDA DE EJEMPLO
 3 10 5 16 8 4 2 1
 
-Tecla-Ton — Primera Edición Página 2 de 6
-
 Problema E — Viajes en Ascensor Límite: 1.0s / 512 MB
-Hay n personas que quieren llegar a la cima de un edificio que tiene un solo ascensor. Se conoce el peso de cada
-persona y el peso máximo permitido en el ascensor. ¿Cuál es el número mínimo de viajes en ascensor?
+n personas deben subir en un ascensor con capacidad de peso x. Conocido el peso de cada persona, encuentra el mínimo número de viajes.
 ENTRADA
-La primera línea de entrada contiene dos números enteros n y x: el número de personas y el peso máximo permitido.
-La segunda línea tiene n números enteros w1
-, w2
-, ..., wn
-: el peso de cada persona.
-
+La primera línea contiene n y x; la segunda contiene los n pesos.
 SALIDA
-Imprime un número entero: el número mínimo de viajes requeridos.
+El número mínimo de viajes.
 RESTRICCIONES
-1 ≤ n ≤ 20
-1 ≤ x ≤ 10
-9
-1 ≤ wi ≤ x
+1 ≤ n ≤ 20; 1 ≤ x ≤ 10^9; 1 ≤ wi ≤ x.
 ENTRADA DE EJEMPLO
 4 10
 4 8 6 1
-
 SALIDA DE EJEMPLO
 2
 
 Problema F — Hangar del SBC Límite: 1.0s / 512 MB
-Un pequeño avión de carga del Sistema Binario de Cargas (SBC) fue protegido para transportar productos
-especiales y secretos. Esos productos son agrupados en cajas con diferentes pesos. El avión tiene un rango de
-peso de seguridad, dentro del cual es estable. Más específicamente, hay dos valores A y B tales que si el peso total
-de las cajas transportadas es menor que A o mayor que B, no será posible garantizar la seguridad del vuelo.
-Se sabe que todas las cajas tienen pesos diferentes, y que, al comparar los pesos de cualquier par de cajas, la caja
-más pesada pesa al menos el doble que la caja de menor peso. Su tarea es determinar de cuántas maneras puede
-elegir exactamente K cajas para ser transportadas sin desestabilizar el avión.
+Hay N cajas de pesos diferentes. Un conjunto es seguro si su peso total está entre A y B. Cada caja más pesada pesa al menos el doble que una caja más ligera. Cuenta las maneras de elegir exactamente K cajas seguras.
 ENTRADA
-La primera línea contiene dos enteros N (1 ≤ N ≤ 50) y K (1 ≤ K ≤ 50).
-La segunda línea contiene N enteros Pi
-(1 ≤ Pi ≤ 10
-18
-) representando los pesos de cada caja.
-
-La tercera línea contiene dos enteros, A y B (1 ≤ A ≤ B ≤ 2 · 10
-18
-).
-
+N y K; luego N pesos; finalmente A y B.
 SALIDA
-Una única línea con un entero representando la cantidad de formas de elegir las K cajas requeridas.
-EJEMPLOS DE ENTRADA Y SALIDA
-EJEMPLO 1 - ENTRADA
+Número de maneras.
+RESTRICCIONES
+1 ≤ N,K ≤ 50; 1 ≤ Pi ≤ 10^18; 1 ≤ A ≤ B ≤ 2·10^18.
+EJEMPLO 1
 3 2
 10 1 3
 4 13
-
-EJEMPLO 1 - SALIDA
+SALIDA
 3
-
-EJEMPLO 2 - ENTRADA
+EJEMPLO 2
 6 3
 14 70 3 1 6 31
 10 74
-
-EJEMPLO 2 - SALIDA
+SALIDA
 11
 
-Tecla-Ton — Primera Edición Página 3 de 6
-
 Problema G — Juntando Datos Límite: 1.0s / 512 MB
-Acre y Amanda son muy curiosos en la manera que siempre buscan patrones. Ellos rutinariamente recolectan y
-analizan información de varias fuentes (tráfico de la ciudad, lluvias, número de hojas que caen de los árboles),
-esperando encontrar algunos patrones interesantes. Su última expedición produjo un conjunto de datos bastante
-prometedor: ¡seguía una línea recta perfecta! Formalmente, era una lista de N/2 pares de enteros, posiblemente
-repetidos. Cuando estos pares se graficaron como puntos en un plano cartesiano, ¡todos ellos eran perfectamente
-colineales!
-Satisfechos, Acre y Amanda guardaron estos datos como una tabla conteniendo los pares de enteros.
-Desafortunadamente, mientras Acre y Amanda estaban recolectando más información, su hijo menor entró a su
-oficina y modificó los datos de la tabla, revolviendo todos los valores que ésta tenía. Ahora todo lo que les quedó
-son los N enteros revueltos.
-Ellos desean reconstruir la tabla con los datos que les quedaron. Formalmente, quieren reorganizar estos enteros en
-N/2 pares, donde cada par representa un punto en el plano cartesiano, de tal modo que todos estos puntos sean
-colineales. La lista de enteros puede tener valores repetidos, y cada valor debe ser usado tantas veces como
-aparece. El conjunto resultante puede tener puntos repetidos. Como puede haber varios conjuntos válidos, quieren
-conocer la cantidad de dichos conjuntos de datos. Dos conjuntos se consideran diferentes si y solo si hay un punto
-que aparece más veces en un conjunto que en el otro.
+Una lista de N enteros revueltos proviene de N/2 pares que son puntos colineales. Reorganiza los valores en pares para formar puntos colineales; valores repetidos se usan con su multiplicidad. Cuenta los conjuntos distintos módulo 10^9+7.
 ENTRADA
-La primera línea contiene un entero N, la longitud de la lista (siempre par, 4 ≤ N ≤ 200).
-La segunda línea contiene N enteros en el rango −10000 ≤ I ≤ 10000, separados por espacio.
+N par y N enteros entre -10000 y 10000.
 SALIDA
-Una única línea con un entero representando la cantidad de formas diferentes en que la lista se puede reorganizar
-en puntos colineales, módulo 10
-9 + 7.
-EJEMPLOS DE ENTRADA Y SALIDA
-EJEMPLO 1 - ENTRADA
+Número de conjuntos posibles módulo 10^9+7.
+RESTRICCIONES
+4 ≤ N ≤ 200.
+EJEMPLO 1
 8
 1 2 3 5 20 18 16 12
-
-EJEMPLO 1 - SALIDA
+SALIDA
 2
 
-EJEMPLO 2 - ENTRADA
-6
-1 2 3 4 5 20
-
-EJEMPLO 2 - SALIDA
-0
-
-EJEMPLO 3 - ENTRADA
-8
-1 2 5 5 5 5 8 9
-
-EJEMPLO 3 - SALIDA
-10
-
-Tecla-Ton — Primera Edición Página 4 de 6
-
 Problema H — Números de Fibonacci Límite: 1.0s / 512 MB
-Los números de Fibonacci se pueden definir de la siguiente manera:
-F0 = 0
-F1 = 1
-Fn = Fn−2 + Fn−1
-Tu tarea es calcular el valor de Fn para un dado n.
+Calcula Fn, donde F0=0, F1=1 y Fn=Fn-2+Fn-1.
 ENTRADA
-La única línea de entrada contiene un número entero n.
+Un entero n.
 SALIDA
-Imprime el valor de Fn módulo 10
-9 + 7.
-
+Fn módulo 10^9+7.
 RESTRICCIONES
-0 ≤ n ≤ 10
-18
+0 ≤ n ≤ 10^18.
 ENTRADA DE EJEMPLO
-10
-
+100
 SALIDA DE EJEMPLO
-55
+687995182
 
 Problema I — Rompiendo Rosarigasino Límite: 1.0s / 1024 MB
-Camila visita Rosario por primera vez. Mientras caminaba por sus calles, escuchó palabras que no entendía, así que
-decidió anotarlas en su diario de viaje.
-Al llegar a su habitación de hotel, decidió descifrar este misterioso código. Tras pasar horas analizando las palabras,
-cree haberlo descifrado: La gente de Rosario toma una palabra, duplica una de sus vocales (A, E, I, O, U) y luego
-inserta la palabra GAS entre las dos vocales. Por ejemplo: ROSARINO → ROSARIGASINO.
-Ahora quiere tomar su lista y traducirla invirtiendo esta transformación. Sin embargo, notó que tenía palabras que no
-parecían seguir esta regla, como PRALINE y ENTRECOT. También encontró palabras que podrían tener más de una
-traducción posible, como AGASAJOGASO, que podría provenir de AGASAJO o de AJOGASO. Camila quiere que
-escribamos un programa que la ayude con esta tediosa tarea.
+La transformación inserta GAS entre dos copias consecutivas de una vocal en una palabra. Invierte la transformación.
 ENTRADA
-Una sola línea que contiene una cadena de N caracteres (1 ≤ N ≤ 100), compuesta por letras mayúsculas del
-alfabeto inglés, de la A a la Z. Además, se garantiza que contiene al menos una vocal.
+Una palabra de letras mayúsculas, con al menos una vocal.
 SALIDA
-Si existe exactamente una traducción posible, la palabra traducida. Si hay más de una traducción posible, el carácter
-' + '. Si no hay traducción posible, el carácter ' - '.
-EJEMPLOS DE ENTRADA Y SALIDA
-EJEMPLO 1 - ENTRADA
+La única traducción si hay exactamente una; '+' si hay más de una; '-' si no hay.
+RESTRICCIONES
+1 ≤ N ≤ 100.
+EJEMPLO 1
 ROSARIGASINO
-
-EJEMPLO 1 - SALIDA
+SALIDA
 ROSARINO
-
-EJEMPLO 2 - ENTRADA
-PRALINÉ
-
-EJEMPLO 2 - SALIDA
+EJEMPLO 2
+PRALINE
+SALIDA
 -
-
-EJEMPLO 3 - ENTRADA
+EJEMPLO 3
 AGASAJOGASO
-
-EJEMPLO 3 - SALIDA
+SALIDA
 +
 
-Tecla-Ton — Primera Edición Página 5 de 6
-
 Problema J — Número de cadenas Límite: 1.0s / 1024 MB
-Se te dan tres números enteros N, K y A. Tu tarea es calcular el número de cadenas de longitud N que contienen
-exactamente K subcadenas palindrómicas de longitud 3, considerando que cada cadena se forma utilizando solo
-las primeras A letras del alfabeto.
-Una subcadena es una cadena que se puede obtener de la cadena original eliminando algunos caracteres
-(posiblemente cero) del principio y algunos caracteres (posiblemente cero) del final.
-Dos o más subcadenas formadas por las mismas letras en el mismo orden, pero que aparecen en diferentes
-posiciones de la cadena original de longitud N, no se cuentan como lo mismo; en cambio, cada ocurrencia se cuenta
-una vez. Por ejemplo, AAABAAA tiene 5 subcadenas de longitud 3.
-Un palíndromo es una cadena de caracteres que se lee igual de izquierda a derecha que de derecha a izquierda,
-como por ejemplo SOMOS o NEUQUEN .
+Cuenta cadenas de longitud N usando las primeras A letras que contengan exactamente K ocurrencias de subcadenas palíndromas de longitud 3. Cada posición cuenta como ocurrencia distinta.
 ENTRADA
-Una sola línea con tres números enteros N, K y A (1 ≤ N ≤ 10
-6
-, 0 ≤ K ≤ 10
-6
-, 2 ≤ A ≤ 26).
-
+N, K y A.
 SALIDA
-Un único número entero, el número de cadenas que satisfacen las condiciones módulo 998244353.
-EJEMPLOS DE ENTRADA Y SALIDA
-EJEMPLO 1 - ENTRADA
+El número de cadenas módulo 998244353.
+RESTRICCIONES
+1 ≤ N ≤ 10^6; 0 ≤ K ≤ 10^6; 2 ≤ A ≤ 26.
+EJEMPLO 1
 3 1 2
-
-EJEMPLO 1 - SALIDA
+SALIDA
 4
-
-EJEMPLO 2 - ENTRADA
+EJEMPLO 2
 5 2 3
-
-EJEMPLO 2 - SALIDA
+SALIDA
 54
-
-EJEMPLO 3 - ENTRADA
+EJEMPLO 3
 2 1 26
-
-EJEMPLO 3 - SALIDA
+SALIDA
 0
-
-NOTA
-En el primer ejemplo, las cuatro cadenas que satisfacen las condiciones son AAA , ABA , BAB y BBB . Nótese que
-todas ellas tienen exactamente una subcadena palíndroma de longitud 3.
-En el segundo ejemplo, algunas cadenas que satisfacen las condiciones son CACAB o ABACA .
-En el tercer ejemplo, no hay cadenas que satisfagan todas las condiciones.

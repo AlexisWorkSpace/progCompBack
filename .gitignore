@@ -3,4 +3,5 @@ data/
 .env
 .env.*
 !.env.example
+worker.env
 *.log
