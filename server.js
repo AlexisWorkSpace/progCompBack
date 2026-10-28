@@ -15,7 +15,7 @@ const { createSubmissionQueue } = require('./submissionQueue');
 const execFileAsync = promisify(execFile);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 const PROJECT_ROOT = require('fs').existsSync(path.join(__dirname, 'docker')) ? __dirname : path.join(__dirname, '..');
 const MAX_CODE_SIZE = 512 * 1024;
 const MAX_INPUT_SIZE = 64 * 1024;
