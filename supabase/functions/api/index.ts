@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import exerciseText from '../../../ejercicios.txt' with { type: 'text' };
+import exerciseText from './exercises-text.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const APP_SECRET_KEY = Deno.env.get('APP_SECRET_KEY')!;
