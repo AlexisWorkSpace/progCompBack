@@ -139,7 +139,7 @@ async function route(req: Request) {
       .select('id, name, kind, member1_name, member2_name, member2_expected_name, team_scores(exercise_id, score)');
     if (error) throw error;
     const users = (data || []).map((entry: any) => {
-      const scores: Record<string, number> = {};
+     if (row.score !== null && row.exercise_id !== 'T') scores[row.exercise_id] = row.score;
       for (const row of entry.team_scores || []) if (row.score !== null) scores[row.exercise_id] = row.score;
       const total = Object.values(scores).reduce((sum, score) => sum + score, 0);
       return {
