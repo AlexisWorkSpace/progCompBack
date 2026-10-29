@@ -23,16 +23,17 @@ const buckets = new Map<string, { count: number; resetAt: number }>();
 const usernamePattern = /^[A-Za-z0-9_-]{3,20}$/;
 const usernameEmail = (username: string) => `${username.toLowerCase()}@users.teclaton.invalid`;
 const exerciseMeta = [
-  { id: 'A', title: 'Apartamentos Límite', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'B', title: 'Combinaciones de Monedas II', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'C', title: 'Asignación de Habitaciones', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'D', title: 'Algoritmo Extraño', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'E', title: 'Viajes en Ascensor', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'G', title: 'Juntando Datos', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'H', title: 'Números de Fibonacci', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 1 },
-  { id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 1 },
-  { id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 1 },
+  { id: 'A', title: 'Apartamentos Límite', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 36 },
+  { id: 'B', title: 'Combinaciones de Monedas II', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 37 },
+  { id: 'C', title: 'Asignación de Habitaciones', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 38 },
+  { id: 'D', title: 'Algoritmo Extraño', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 40 },
+  { id: 'E', title: 'Viajes en Ascensor', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 34 },
+  { id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 48 },
+  { id: 'G', title: 'Juntando Datos', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 47 },
+  { id: 'H', title: 'Números de Fibonacci', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 37 },
+  { id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 50 },
+  { id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 42 },
+  { id: 'T', title: 'Test', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 7 } ,
 ];
 const problemSections = [...exerciseText.matchAll(/^Problema ([A-JT]) — [^\r\n]+/gm)];
 
