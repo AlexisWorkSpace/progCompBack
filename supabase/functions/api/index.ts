@@ -28,12 +28,12 @@ const exerciseMeta = [
   { id: 'C', title: 'Asignación de Habitaciones', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 38 },
   { id: 'D', title: 'Algoritmo Extraño', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 40 },
   { id: 'E', title: 'Viajes en Ascensor', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 34 },
-  { id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 48 },
+  { id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 38 },
   { id: 'G', title: 'Juntando Datos', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 47 },
   { id: 'H', title: 'Números de Fibonacci', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 37 },
   { id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 50 },
   { id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 42 },
-  { id: 'T', title: 'Test', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 7 } ,
+  { id: 'T', title: 'Test', timeLimitMs: 1000, memoryLimitMb: 512, testCount: 7 },
 ];
 const problemSections = [...exerciseText.matchAll(/^Problema ([A-JT]) — [^\r\n]+/gm)];
 
@@ -139,8 +139,8 @@ async function route(req: Request) {
       .select('id, name, kind, member1_name, member2_name, member2_expected_name, team_scores(exercise_id, score)');
     if (error) throw error;
     const users = (data || []).map((entry: any) => {
-     if (row.score !== null && row.exercise_id !== 'T') scores[row.exercise_id] = row.score;
-      for (const row of entry.team_scores || []) if (row.score !== null) scores[row.exercise_id] = row.score;
+      const scores: Record<string, number> = {};
+      for (const row of entry.team_scores || []) if (row.score !== null && row.exercise_id !== 'T') scores[row.exercise_id] = row.score;
       const total = Object.values(scores).reduce((sum, score) => sum + score, 0);
       return {
         id: entry.id, teamName: entry.name, kind: entry.kind,

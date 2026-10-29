@@ -169,3 +169,17 @@ EJEMPLO 3
 2 1 26
 SALIDA
 0
+
+Problema T — Test Límite: 1.0s / 512 MB
+Este problema es solo una práctica para probar el envío de soluciones: no suma puntos en el ranking.
+Lee dos enteros a y b e imprime su suma.
+ENTRADA
+Dos enteros a y b separados por un espacio.
+SALIDA
+Un entero: a + b.
+RESTRICCIONES
+-1000 ≤ a, b ≤ 1000.
+ENTRADA DE EJEMPLO
+3 4
+SALIDA DE EJEMPLO
+7
