@@ -34,7 +34,7 @@ const exerciseMeta = [
   { id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 1 },
   { id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024, testCount: 1 },
 ];
-const problemSections = [...exerciseText.matchAll(/^Problema ([A-J]) — [^\r\n]+/gm)];
+const problemSections = [...exerciseText.matchAll(/^Problema ([A-JT]) — [^\r\n]+/gm)];
 
 function json(data: unknown, status = 200, headers: HeadersInit = {}) {
   return new Response(JSON.stringify(data), {
