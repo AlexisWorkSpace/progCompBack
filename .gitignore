@@ -5,3 +5,4 @@ data/
 !.env.example
 worker.env
 *.log
+supabase/.temp/

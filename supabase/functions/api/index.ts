@@ -94,9 +94,10 @@ async function profile(userId: string) {
     teamId: data.team_id, scores: result, wrongAttempts,
     team: team ? {
       id: team.id, name: team.name, kind: team.kind,
-      inviteCode: team.kind === 'pair' && !team.member2_name ? team.invite_code : null,
+      // Cada equipo usa una sola cuenta: el segundo integrante solo se registra por nombre.
+      inviteCode: null,
       members: [team.member1_name, team.member2_name || (team.kind === 'pair' ? team.member2_expected_name : null)].filter(Boolean),
-      isComplete: team.kind === 'solo' || Boolean(team.member2_name),
+      isComplete: true,
     } : null,
   };
 }
@@ -165,19 +166,17 @@ async function route(req: Request) {
     }
     if (typeof password !== 'string' || password.length < 8 || password.length > 128) return json({ error: 'La contraseña debe tener entre 8 y 128 caracteres.' }, 400);
     const teamMode = body.teamMode;
-    if (!['solo', 'pair', 'join'].includes(teamMode)) return json({ error: 'Selecciona la modalidad de equipo.' }, 400);
+    if (!['solo', 'pair'].includes(teamMode)) return json({ error: 'Selecciona la modalidad de equipo.' }, 400);
     if (teamMode === 'pair' && (typeof body.teamName !== 'string' || typeof body.teammateName !== 'string')) {
       return json({ error: 'Indica el nombre del equipo y el segundo participante.' }, 400);
     }
     if (teamMode === 'solo' && typeof body.teamName !== 'string') return json({ error: 'Indica el nombre del equipo individual.' }, 400);
-    if (teamMode === 'join' && typeof body.inviteCode !== 'string') return json({ error: 'Ingresa el código de invitación.' }, 400);
     const { data: created, error: createError } = await admin.auth.admin.createUser({
       email: usernameEmail(username), password, email_confirm: true,
       user_metadata: {
         username, full_name: fullName, career, team_mode: teamMode,
         team_name: typeof body.teamName === 'string' ? body.teamName.trim() : '',
         teammate_name: typeof body.teammateName === 'string' ? body.teammateName.trim() : '',
-        invite_code: typeof body.inviteCode === 'string' ? body.inviteCode.trim().toUpperCase() : '',
       },
     });
     if (createError) {
@@ -221,9 +220,6 @@ async function route(req: Request) {
     const current = await profile(user.id);
     if (!current?.teamId) return json({ error: 'La cuenta no pertenece a un equipo.' }, 403);
     if (routePath === 'submit' && !rateLimit('submit', current.teamId)) return json({ error: 'El equipo alcanzó el límite de envíos por minuto.' }, 429);
-    if (routePath === 'submit' && current.team?.kind === 'pair' && !current.team.isComplete) {
-      return json({ error: 'El equipo está incompleto; el segundo participante debe crear su cuenta con el código de invitación.' }, 409);
-    }
     const body = await readJson(req);
     if (typeof body.code !== 'string' || body.code.length > 512 * 1024) return json({ error: 'Código inválido o supera 512 KB.' }, 413);
     if (!['python', 'java', 'c', 'cpp'].includes(body.language)) return json({ error: 'Lenguaje no soportado.' }, 400);
