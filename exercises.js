@@ -1,73 +1,34 @@
+const { generate } = require('./testGenerators');
+const TEST_DATA = require('./exerciseTests');
+
+// Los casos viven en exerciseTests.js (archivo generado). Las entradas muy grandes (A y C) no se guardan:
+// se arman al vuelo con un generador deterministico cuando el juez lee `test.input`.
+function buildTests(id) {
+  return TEST_DATA[id].map((entry) => {
+    const test = { name: entry.name };
+    if (entry.output !== undefined) test.output = entry.output;
+    if (entry.gen) {
+      Object.defineProperty(test, 'input', { enumerable: true, get: () => generate(entry.gen, entry.params) });
+    } else {
+      test.input = entry.input;
+    }
+    return test;
+  });
+}
+
 const EXERCISES = [
-  {
-    id: 'A', title: 'Apartamentos Límite', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '4 3 5\n60 45 80 60\n30 60 75\n', output: '2\n' },
-    ],
-  },
-  {
-    id: 'B', title: 'Combinaciones de Monedas II', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '3 9\n2 3 5\n', output: '3\n' },
-    ],
-  },
-  {
-    id: 'C', title: 'Asignación de Habitaciones', timeLimitMs: 1000, memoryLimitMb: 512,
-    checker: 'rooms',
-    tests: [
-      { input: '3\n1 2\n2 4\n4 4\n' },
-    ],
-  },
-  {
-    id: 'D', title: 'Algoritmo Extraño', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '3\n', output: '3 10 5 16 8 4 2 1\n' },
-    ],
-  },
-  {
-    id: 'E', title: 'Viajes en Ascensor', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '4 10\n4 8 6 1\n', output: '2\n' },
-    ],
-  },
-  {
-    id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '3 2\n10 1 3\n4 13\n', output: '3\n' },
-    ],
-  },
-  {
-    id: 'G', title: 'Juntando Datos', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '8\n1 2 3 5 20 18 16 12\n', output: '2\n' },
-      { input: '6\n1 2 3 4 5 20\n', output: '0\n' },
-      { input: '8\n1 2 5 5 5 5 8 9\n', output: '10\n' },
-    ],
-  },
-  {
-    id: 'H', title: 'Números de Fibonacci', timeLimitMs: 1000, memoryLimitMb: 512,
-    tests: [
-      { input: '10\n', output: '55\n' },
-      { input: '0\n', output: '0\n' },
-      { input: '100\n', output: '687995182\n' },
-    ],
-  },
-  {
-    id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024,
-    tests: [
-      { input: 'ROSARIGASINO\n', output: 'ROSARINO\n' },
-      { input: 'PRALINE\n', output: '-\n' },
-      { input: 'AGASAJOGASO\n', output: '+\n' },
-    ],
-  },
-  {
-    id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024,
-    tests: [
-      { input: '5 2 3\n', output: '54\n' },
-      { input: '2 1 26\n', output: '0\n' },
-      { input: '3 0 2\n', output: '4\n' },
-    ],
-  },
+  { id: 'A', title: 'Apartamentos Límite', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('A') },
+  { id: 'B', title: 'Combinaciones de Monedas II', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('B') },
+  { id: 'C', title: 'Asignación de Habitaciones', timeLimitMs: 1000, memoryLimitMb: 512, checker: 'rooms', tests: buildTests('C') },
+  { id: 'D', title: 'Algoritmo Extraño', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('D') },
+  { id: 'E', title: 'Viajes en Ascensor', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('E') },
+  { id: 'F', title: 'Hangar del SBC', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('F') },
+  { id: 'G', title: 'Juntando Datos', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('G') },
+  { id: 'H', title: 'Números de Fibonacci', timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('H') },
+  { id: 'I', title: 'Rompiendo Rosarigasino', timeLimitMs: 1000, memoryLimitMb: 1024, tests: buildTests('I') },
+  { id: 'J', title: 'Número de cadenas', timeLimitMs: 1000, memoryLimitMb: 1024, tests: buildTests('J') },
+  // Ejercicio demostrativo para ensenar a enviar soluciones al comenzar la competencia (no puntua en el ranking).
+  { id: 'T', title: 'Test', demo: true, timeLimitMs: 1000, memoryLimitMb: 512, tests: buildTests('T') },
 ];
 
 function normalizeOutput(value) {

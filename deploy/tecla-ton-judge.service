@@ -1,0 +1,19 @@
+[Unit]
+Description=Tecla-Ton local code judge worker
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/tecla-ton
+EnvironmentFile=/etc/tecla-ton/worker.env
+ExecStart=/usr/bin/npm run worker
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

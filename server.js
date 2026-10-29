@@ -10,18 +10,21 @@ const { randomUUID } = require('crypto');
 const { performance } = require('perf_hooks');
 const { EXERCISES, validateOutput } = require('./exercises');
 const userStore = require('./userStore');
+const { createSubmissionQueue } = require('./submissionQueue');
 
 const execFileAsync = promisify(execFile);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 const PROJECT_ROOT = require('fs').existsSync(path.join(__dirname, 'docker')) ? __dirname : path.join(__dirname, '..');
 const MAX_CODE_SIZE = 512 * 1024;
 const MAX_INPUT_SIZE = 64 * 1024;
 const MAX_OUTPUT_SIZE = 1024 * 1024;
 const EXECUTION_TIMEOUT_MS = 10000;
-const MAX_CONCURRENT_RUNS = Number(process.env.MAX_CONCURRENT_RUNS || 4);
+const MAX_CONCURRENT_RUNS = Math.max(1, Math.min(8, Number(process.env.MAX_CONCURRENT_RUNS || 4)));
+const MAX_QUEUED_SUBMISSIONS = Math.max(1, Number(process.env.MAX_QUEUED_SUBMISSIONS || 200));
 let activeRuns = 0;
+
 const rateLimitBuckets = new Map();
 const RATE_LIMITS = {
   login: { windowMs: 15 * 60 * 1000, max: 10 },
@@ -312,30 +315,11 @@ app.get('/ranking', (req, res) => {
   res.json({ users: userStore.getRanking(), exerciseIds: EXERCISES.map(({ id }) => id) });
 });
 
-app.post('/submit', requireUser, rateLimit('submit'), rateLimit('submit', (req) => req.authenticatedUser.id), async (req, res) => {
-  let acquiredSlot = false;
+async function evaluateSubmission({ userId, exercise, language, code }) {
   let tempDir;
   try {
-    const user = req.authenticatedUser;
-
-    const { exerciseId, language, code } = req.body || {};
-    const exercise = EXERCISES.find((candidate) => candidate.id === exerciseId);
-    const normalizedLanguage = String(language || '').toLowerCase();
-    if (!exercise || !LANGUAGE_CONFIG[normalizedLanguage] || typeof code !== 'string') {
-      return res.status(400).json({ error: 'Selecciona un ejercicio, lenguaje y código válidos.' });
-    }
-    if (Buffer.byteLength(code, 'utf8') > MAX_CODE_SIZE) return res.status(413).json({ error: 'El código supera el límite de 512 KB.' });
-    if (user.scores[exerciseId] !== undefined) {
-      return res.json({ verdict: 'AC', alreadySolved: true, score: user.scores[exerciseId], message: 'Este ejercicio ya está resuelto.' });
-    }
-    if (activeRuns >= MAX_CONCURRENT_RUNS) {
-      return res.status(429).json({ error: 'El servidor está ocupado. Inténtalo de nuevo en unos segundos.' });
-    }
-
-    activeRuns += 1;
-    acquiredSlot = true;
-    await ensureDockerImage(normalizedLanguage);
-    const source = await createTemporarySource(normalizedLanguage, code);
+    await ensureDockerImage(language);
+    const source = await createTemporarySource(language, code);
     tempDir = source.tempDir;
     const startedAt = performance.now();
     let passedTests = 0;
@@ -344,7 +328,7 @@ app.post('/submit', requireUser, rateLimit('submit'), rateLimit('submit', (req) 
 
     for (let index = 0; index < exercise.tests.length; index += 1) {
       const test = exercise.tests[index];
-      const result = await runCodeInContainer(normalizedLanguage, source.filePath, test.input, exercise);
+      const result = await runCodeInContainer(language, source.filePath, test.input, exercise);
       const timedOut = result.timedOut || result.exitCode === 124;
       if (timedOut || result.exitCode === 137) {
         verdict = timedOut ? 'TLE' : 'MLE';
@@ -359,22 +343,68 @@ app.post('/submit', requireUser, rateLimit('submit'), rateLimit('submit', (req) 
       passedTests += 1;
     }
 
-    const scoreResult = await userStore.recordSubmission(user.id, exerciseId, verdict === 'AC');
-    return res.json({
+    const scoreResult = await userStore.recordSubmission(userId, exercise.id, verdict === 'AC');
+    return {
       verdict: scoreResult.alreadySolved ? 'AC' : verdict,
       passedTests,
       totalTests: exercise.tests.length,
       failedTest,
       executionTimeMs: Number((performance.now() - startedAt).toFixed(2)),
       ...scoreResult,
-    });
+    };
   } catch (error) {
-    if (error.status) return res.status(error.status).json({ error: error.message });
-    if (error.code === 'ENOENT') return res.status(500).json({ error: 'Docker no está disponible en este entorno.' });
-    return res.status(500).json({ error: error.message || 'Error al evaluar la solución.' });
+    if (error.code === 'ENOENT') throw new Error('Docker no está disponible en este entorno.');
+    throw error;
   } finally {
     if (tempDir) await fs.rm(tempDir, { recursive: true, force: true });
-    if (acquiredSlot) activeRuns -= 1;
+  }
+}
+
+// Cola de entregas: las evaluaciones se procesan en orden de llegada y nunca
+// superan MAX_CONCURRENT_RUNS ejecuciones simultáneas (compartidas con /run).
+const submissionQueue = createSubmissionQueue({
+  evaluate: evaluateSubmission,
+  maxQueued: MAX_QUEUED_SUBMISSIONS,
+  acquire() {
+    if (activeRuns >= MAX_CONCURRENT_RUNS) return false;
+    activeRuns += 1;
+    return true;
+  },
+  release() {
+    activeRuns -= 1;
+  },
+});
+
+app.get('/jobs/:jobId', requireUser, (req, res) => {
+  const job = submissionQueue.get(req.params.jobId, req.authenticatedUser.id);
+  if (!job) return res.status(404).json({ error: 'Trabajo no encontrado.' });
+  return res.json(job);
+});
+
+app.post('/submit', requireUser, rateLimit('submit'), rateLimit('submit', (req) => req.authenticatedUser.id), async (req, res) => {
+  try {
+    const user = req.authenticatedUser;
+
+    const { exerciseId, language, code } = req.body || {};
+    const exercise = EXERCISES.find((candidate) => candidate.id === exerciseId);
+    const normalizedLanguage = String(language || '').toLowerCase();
+    if (!exercise || !LANGUAGE_CONFIG[normalizedLanguage] || typeof code !== 'string') {
+      return res.status(400).json({ error: 'Selecciona un ejercicio, lenguaje y código válidos.' });
+    }
+    if (Buffer.byteLength(code, 'utf8') > MAX_CODE_SIZE) return res.status(413).json({ error: 'El código supera el límite de 512 KB.' });
+    if (user.scores[exerciseId] !== undefined) {
+      return res.json({ verdict: 'AC', alreadySolved: true, score: user.scores[exerciseId], message: 'Este ejercicio ya está resuelto.' });
+        }
+
+    const job = submissionQueue.enqueue({
+      userId: user.id,
+      exerciseId: exercise.id,
+      payload: { userId: user.id, exercise, language: normalizedLanguage, code },
+    });
+    return res.status(202).json(job);
+  } catch (error) {
+    if (error.status) return res.status(error.status).json({ error: error.message });
+    return res.status(500).json({ error: error.message || 'Error al evaluar la solución.' });
   }
 });
 
@@ -436,9 +466,12 @@ app.post('/run', requireUser, rateLimit('run'), rateLimit('run', (req) => req.au
     return res.status(500).json({
       success: false,
       error: error.message || 'Error al ejecutar el código.',
-    });
+        });
   } finally {
-    if (acquiredSlot) activeRuns -= 1;
+    if (acquiredSlot) {
+      activeRuns -= 1;
+      submissionQueue.drain();
+    }
   }
 });
 
